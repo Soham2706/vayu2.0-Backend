@@ -1,0 +1,28 @@
+import asyncio
+from mavsdk import System
+
+
+async def main():
+    drone = System()
+
+    print("Connecting to PX4...")
+    await drone.connect(system_address="udp://:14540")
+
+    print("Waiting for PX4 connection...")
+
+    async for state in drone.core.connection_state():
+        if state.is_connected:
+            print("PX4 CONNECTED!")
+            break
+
+    async for health in drone.telemetry.health():
+        print(
+            "Health:",
+            "GPS=", health.is_global_position_ok,
+            "Home=", health.is_home_position_ok,
+        )
+        break
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
